@@ -1,0 +1,27 @@
+<main class="home-container">
+  <section class="home-card">
+    <header class="home-header">
+      <div>
+        <p class="eyebrow">SISTEMA DE ESTOQUE</p>
+        <h1>Bem-vindo!</h1>
+      </div>
+      <button class="logout-button" (click)="logout()">Sair</button>
+    </header>
+
+    <nav class="home-menu" aria-label="Menu principal">
+      <a
+        routerLink="/home.html"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        Início
+      </a>
+      <a routerLink="/home.html/produtos" routerLinkActive="active">Produtos</a>
+      <a routerLink="/home.html/usuarios" routerLinkActive="active">Usuários</a>
+    </nav>
+
+    <section class="page-content">
+      <router-outlet />
+    </section>
+  </section>
+</main>
