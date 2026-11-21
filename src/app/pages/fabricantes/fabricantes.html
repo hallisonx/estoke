@@ -1,0 +1,152 @@
+<section class="fabricantes-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">CADASTROS</p>
+      <h2>Fabricantes</h2>
+    </div>
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="carregarFabricantes()"
+      [disabled]="carregandoLista()"
+    >
+      {{ carregandoLista() ? 'Consultando...' : 'Atualizar lista' }}
+    </button>
+  </header>
+
+  <p class="erro" *ngIf="mensagemErro()" role="alert">{{ mensagemErro() }}</p>
+  <p class="sucesso" *ngIf="mensagemSucesso()" role="status">
+    {{ mensagemSucesso() }}
+  </p>
+
+  <form #formularioFabricante class="fabricante-form" (ngSubmit)="salvar()">
+    <h3>
+      {{ editandoId() === null ? 'Novo fabricante' : 'Editar fabricante' }}
+    </h3>
+
+    <label>
+      Nome
+      <input name="nome" type="text" [(ngModel)]="formulario.nome" required />
+    </label>
+
+    <label>
+      CNPJ
+      <input
+        name="cnpj"
+        type="text"
+        maxlength="18"
+        placeholder="00.000.000/0000-00"
+        autocapitalize="characters"
+        [ngModel]="formulario.cnpj"
+        (ngModelChange)="atualizarCnpj($event)"
+        required
+      />
+    </label>
+
+    <label>
+      Estado
+      <select name="estado" [(ngModel)]="formulario.estado" required>
+        <option value="" disabled>Selecione um estado</option>
+        <option *ngFor="let estado of estados" [value]="estado.sigla">
+          {{ estado.nome }} ({{ estado.sigla }})
+        </option>
+      </select>
+    </label>
+
+    <label>
+      Cidade
+      <input name="cidade" type="text" [(ngModel)]="formulario.cidade" required />
+    </label>
+
+    <label>
+      Telefone
+      <input
+        name="telefone"
+        type="tel"
+        inputmode="numeric"
+        maxlength="15"
+        placeholder="(83) 99999-9999"
+        [ngModel]="formulario.telefone"
+        (ngModelChange)="atualizarTelefone($event)"
+        required
+      />
+    </label>
+
+    <div class="wide-field form-actions">
+      <button class="primary-button" type="submit" [disabled]="salvando()">
+        {{
+          salvando()
+            ? editandoId() === null
+              ? 'Salvando...'
+              : 'Atualizando...'
+            : editandoId() === null
+              ? 'Salvar fabricante'
+              : 'Atualizar fabricante'
+        }}
+      </button>
+      <button
+        *ngIf="editandoId() !== null"
+        class="secondary-button"
+        type="button"
+        [disabled]="salvando()"
+        (click)="cancelarEdicao()"
+      >
+        Cancelar edição
+      </button>
+    </div>
+  </form>
+
+  <section class="fabricantes-lista" aria-labelledby="fabricantes-lista-titulo">
+    <h3 id="fabricantes-lista-titulo">Fabricantes cadastrados</h3>
+
+    <p *ngIf="carregandoLista()">Consultando fabricantes...</p>
+    <p *ngIf="!carregandoLista() && fabricantes().length === 0">Nenhum fabricante cadastrado.</p>
+
+    <div class="table-container" *ngIf="fabricantes().length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>CNPJ</th>
+            <th>Estado</th>
+            <th>Cidade</th>
+            <th>Telefone</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let fabricante of fabricantes()">
+            <td>{{ fabricante.nome }}</td>
+            <td>{{ formatarCnpj(fabricante.cnpj) }}</td>
+            <td>{{ fabricante.estado }}</td>
+            <td>{{ fabricante.cidade }}</td>
+            <td>{{ formatarTelefone(fabricante.telefone) }}</td>
+            <td>
+              <button
+                type="button"
+                class="edit-button"
+                title="Editar fabricante"
+                [attr.aria-label]="'Editar fabricante ' + fabricante.nome"
+                (click)="editar(fabricante)"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>

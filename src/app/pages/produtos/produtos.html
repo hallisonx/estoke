@@ -1,0 +1,260 @@
+<section class="produtos-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">CADASTROS</p>
+      <h2>Produtos</h2>
+    </div>
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="carregarProdutos()"
+      [disabled]="carregandoLista()"
+    >
+      {{ carregandoLista() ? 'Consultando...' : 'Atualizar lista' }}
+    </button>
+  </header>
+
+  <p class="erro" *ngIf="mensagemErro()" role="alert">{{ mensagemErro() }}</p>
+  <p class="sucesso" *ngIf="mensagemSucesso()" role="status">
+    {{ mensagemSucesso() }}
+  </p>
+
+  <form #formularioProduto class="produto-form" (ngSubmit)="salvar()">
+    <h3>
+      {{ editandoId() === null ? 'Novo produto' : 'Editar produto' }}
+    </h3>
+
+    <label>
+      Nome
+      <input name="nome" type="text" [(ngModel)]="formulario.nome" required />
+    </label>
+
+    <label>
+      Cor
+      <select name="cor" [(ngModel)]="formulario.cor" required>
+        <option value="" disabled>Selecione uma cor</option>
+        <option *ngFor="let cor of cores" [value]="cor">{{ cor }}</option>
+      </select>
+    </label>
+
+    <label>
+      Tamanho
+      <select name="tamanho" [(ngModel)]="formulario.tamanho" required>
+        <option value="" disabled>Selecione um tamanho</option>
+        <option *ngFor="let tamanho of tamanhos" [value]="tamanho">
+          {{ tamanho }}
+        </option>
+      </select>
+    </label>
+
+    <label>
+      Gênero
+      <select name="genero" [(ngModel)]="formulario.genero" required>
+        <option value="" disabled>Selecione um gênero</option>
+        <option *ngFor="let genero of generos()" [value]="genero">
+          {{ genero }}
+        </option>
+      </select>
+    </label>
+
+    <label>
+      Peso (em gramas)
+      <input name="peso" type="number" min="0" step="any" [(ngModel)]="formulario.peso" required />
+    </label>
+
+    <label>
+      Tipo de tecido
+      <select name="tipoTecido" [(ngModel)]="formulario.tipoTecido" required>
+        <option value="" disabled>Selecione um tipo de tecido</option>
+        <option *ngFor="let tipo of tiposTecido()" [value]="tipo">
+          {{ tipo }}
+        </option>
+      </select>
+    </label>
+
+    <label>
+      Fabricante
+      <select name="fabricanteId" [(ngModel)]="formulario.fabricanteId" required>
+        <option [ngValue]="null" disabled>Selecione um fabricante</option>
+        <option *ngFor="let fabricante of fabricantes()" [ngValue]="fabricante.id">
+          {{ fabricante.nome }}
+        </option>
+      </select>
+    </label>
+
+    <label>
+      Gramatura
+      <input
+        name="gramatura"
+        type="number"
+        min="0"
+        step="any"
+        [(ngModel)]="formulario.gramatura"
+        required
+      />
+    </label>
+
+    <label>
+      Código de barras
+      <input
+        name="codigoBarras"
+        type="text"
+        maxlength="200"
+        [(ngModel)]="formulario.codigoBarras"
+      />
+    </label>
+
+    <label>
+      QR Code
+      <input name="qrCode" type="text" maxlength="200" [(ngModel)]="formulario.qrCode" />
+    </label>
+
+    <label class="wide-field">
+      Detalhes
+      <textarea
+        name="detalhes"
+        rows="4"
+        maxlength="400"
+        [(ngModel)]="formulario.detalhes"
+      ></textarea>
+    </label>
+
+    <label>
+      Valor de compra
+      <input
+        name="valorCompra"
+        type="text"
+        inputmode="decimal"
+        [ngModel]="formatarMoeda(formulario.valorCompra)"
+        (ngModelChange)="atualizarValorMonetario('valorCompra', $event)"
+        required
+      />
+    </label>
+
+    <label>
+      Valor de venda
+      <input
+        name="valorVenda"
+        type="text"
+        inputmode="decimal"
+        [ngModel]="formatarMoeda(formulario.valorVenda)"
+        (ngModelChange)="atualizarValorMonetario('valorVenda', $event)"
+        required
+      />
+    </label>
+
+    <label>
+      Valor promocional
+      <input
+        name="valorPromocional"
+        type="text"
+        inputmode="decimal"
+        [ngModel]="formatarMoeda(formulario.valorPromocional)"
+        (ngModelChange)="atualizarValorMonetario('valorPromocional', $event)"
+        required
+      />
+    </label>
+
+    <label>
+      Quantidade em estoque
+      <input
+        name="quantidadeEstoque"
+        type="number"
+        min="0"
+        step="1"
+        [(ngModel)]="formulario.quantidadeEstoque"
+        required
+      />
+    </label>
+
+    <label class="ativo-field">
+      <input name="ativo" type="checkbox" [(ngModel)]="formulario.ativo" />
+      Produto ativo
+    </label>
+
+    <div class="wide-field form-actions">
+      <button class="primary-button" type="submit" [disabled]="salvando()">
+        {{
+          salvando()
+            ? editandoId() === null
+              ? 'Salvando...'
+              : 'Atualizando...'
+            : editandoId() === null
+              ? 'Salvar produto'
+              : 'Atualizar produto'
+        }}
+      </button>
+      <button
+        *ngIf="editandoId() !== null"
+        class="secondary-button"
+        type="button"
+        [disabled]="salvando()"
+        (click)="cancelarEdicao()"
+      >
+        Cancelar edição
+      </button>
+    </div>
+  </form>
+
+  <section class="produtos-lista" aria-labelledby="produtos-lista-titulo">
+    <h3 id="produtos-lista-titulo">Produtos cadastrados</h3>
+
+    <p *ngIf="carregandoLista()">Consultando produtos...</p>
+    <p *ngIf="!carregandoLista() && produtos().length === 0">Nenhum produto cadastrado.</p>
+
+    <div class="table-container" *ngIf="produtos().length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Cor</th>
+            <th>Tamanho</th>
+            <th>Gênero</th>
+            <th>Fabricante</th>
+            <th>Valor de venda</th>
+            <th>Valor promocional</th>
+            <th>Estoque</th>
+            <th>Ativo</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let produto of produtos()">
+            <td>{{ produto.nome }}</td>
+            <td>{{ produto.cor }}</td>
+            <td>{{ produto.tamanho }}</td>
+            <td>{{ produto.genero }}</td>
+            <td>{{ nomeFabricante(produto.fabricanteId) }}</td>
+            <td>{{ formatarMoeda(produto.valorVenda) }}</td>
+            <td>{{ formatarMoeda(produto.valorPromocional) }}</td>
+            <td>{{ produto.quantidadeEstoque }}</td>
+            <td>{{ produto.ativo ? 'Sim' : 'Não' }}</td>
+            <td>
+              <button
+                type="button"
+                class="edit-button"
+                title="Editar produto"
+                [attr.aria-label]="'Editar produto ' + produto.nome"
+                (click)="editar(produto)"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>

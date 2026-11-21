@@ -1,0 +1,165 @@
+<section class="clientes-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">CADASTROS</p>
+      <h2>Clientes</h2>
+    </div>
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="carregarClientes()"
+      [disabled]="carregandoLista()"
+    >
+      {{ carregandoLista() ? 'Consultando...' : 'Atualizar lista' }}
+    </button>
+  </header>
+
+  <p class="erro" *ngIf="mensagemErro()" role="alert">{{ mensagemErro() }}</p>
+  <p class="sucesso" *ngIf="mensagemSucesso()" role="status">
+    {{ mensagemSucesso() }}
+  </p>
+
+  <form #formularioCliente class="cliente-form" (ngSubmit)="salvar()">
+    <h3>
+      {{ editandoId() === null ? 'Novo cliente' : 'Editar cliente' }}
+    </h3>
+
+    <label>
+      CPF
+      <input
+        name="cpf"
+        type="text"
+        inputmode="numeric"
+        maxlength="14"
+        placeholder="000.000.000-00"
+        [ngModel]="formulario.cpf"
+        (ngModelChange)="atualizarCpf($event)"
+        autocomplete="off"
+        required
+      />
+    </label>
+
+    <label>
+      Nome
+      <input name="nome" type="text" [(ngModel)]="formulario.nome" required />
+    </label>
+
+    <label>
+      Data de nascimento
+      <input name="dataNascimento" type="date" [(ngModel)]="formulario.dataNascimento" required />
+    </label>
+
+    <label>
+      Telefone
+      <input
+        name="telefone"
+        type="tel"
+        inputmode="numeric"
+        maxlength="15"
+        placeholder="(83) 99999-9999"
+        [ngModel]="formulario.telefone"
+        (ngModelChange)="atualizarTelefone($event)"
+      />
+    </label>
+
+    <label class="wide-field">
+      Endereço residencial
+      <input name="enderecoResidencial" type="text" [(ngModel)]="formulario.enderecoResidencial" />
+    </label>
+
+    <label class="wide-field">
+      Endereço de trabalho
+      <input name="enderecoTrabalho" type="text" [(ngModel)]="formulario.enderecoTrabalho" />
+    </label>
+
+    <label class="ativo-field">
+      <input name="ativo" type="checkbox" [(ngModel)]="formulario.ativo" />
+      Cliente ativo
+    </label>
+
+    <div class="wide-field form-actions">
+      <button class="primary-button" type="submit" [disabled]="salvando()">
+        {{
+          salvando()
+            ? editandoId() === null
+              ? 'Salvando...'
+              : 'Atualizando...'
+            : editandoId() === null
+              ? 'Salvar cliente'
+              : 'Atualizar cliente'
+        }}
+      </button>
+      <button
+        *ngIf="editandoId() !== null"
+        class="secondary-button"
+        type="button"
+        [disabled]="salvando()"
+        (click)="cancelarEdicao()"
+      >
+        Cancelar edição
+      </button>
+    </div>
+  </form>
+
+  <section class="clientes-lista" aria-labelledby="clientes-lista-titulo">
+    <h3 id="clientes-lista-titulo">Clientes cadastrados</h3>
+
+    <p *ngIf="carregandoLista()">Consultando clientes...</p>
+    <p *ngIf="!carregandoLista() && clientes().length === 0">Nenhum cliente cadastrado.</p>
+
+    <div class="table-container" *ngIf="clientes().length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>CPF</th>
+            <th>Nome</th>
+            <th>Nascimento</th>
+            <th>Endereço residencial</th>
+            <th>Endereço de trabalho</th>
+            <th>Telefone</th>
+            <th>Ativo</th>
+            <th>Data de cadastro</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cliente of clientes()">
+            <td>{{ cliente.id }}</td>
+            <td>{{ formatarCpf(cliente.cpf) }}</td>
+            <td>{{ cliente.nome }}</td>
+            <td>{{ formatarData(cliente.dataNascimento) }}</td>
+            <td>{{ cliente.enderecoResidencial }}</td>
+            <td>{{ cliente.enderecoTrabalho }}</td>
+            <td>{{ formatarTelefone(cliente.telefone) }}</td>
+            <td>{{ cliente.ativo ? 'Sim' : 'Não' }}</td>
+            <td>{{ formatarData(cliente.dataCadastro) }}</td>
+            <td>
+              <button
+                type="button"
+                class="edit-button"
+                title="Editar cliente"
+                [attr.aria-label]="'Editar cliente ' + cliente.nome"
+                (click)="editar(cliente)"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>

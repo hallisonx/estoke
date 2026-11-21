@@ -1,0 +1,167 @@
+.fabricantes-page h2 {
+  margin: 0;
+  color: #0d47a1;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: #1976d2;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.fabricante-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+  padding: 20px;
+  background: #f7faff;
+  border: 1px solid #dce5ef;
+  border-radius: 12px;
+}
+
+.fabricante-form h3,
+.wide-field {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.fabricante-form h3,
+.fabricantes-lista h3 {
+  margin: 0;
+  color: #0d47a1;
+}
+
+.fabricante-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #34495e;
+  font-weight: 600;
+}
+
+.fabricante-form input,
+.fabricante-form select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid #c7d2df;
+  border-radius: 7px;
+  background: white;
+  font: inherit;
+}
+
+.primary-button,
+.secondary-button {
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.primary-button {
+  background: #1976d2;
+  color: white;
+}
+
+.primary-button:hover:not(:disabled) {
+  background: #1565c0;
+}
+
+.secondary-button {
+  background: #e4f0fc;
+  color: #0d47a1;
+}
+
+.edit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #1976d2;
+  cursor: pointer;
+}
+
+.edit-button:hover {
+  background: #e4f0fc;
+}
+
+.edit-button:focus-visible {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+.primary-button:disabled,
+.secondary-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.erro {
+  color: #b42318;
+}
+
+.sucesso {
+  color: #187347;
+}
+
+.table-container {
+  overflow-x: auto;
+  margin-top: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 11px 12px;
+  border-bottom: 1px solid #dce5ef;
+  white-space: nowrap;
+}
+
+th {
+  background: #f1f7fd;
+  color: #0d47a1;
+}
+
+@media (max-width: 640px) {
+  .page-header {
+    align-items: flex-start;
+  }
+
+  .fabricante-form {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+
+  .fabricante-form h3,
+  .wide-field {
+    grid-column: auto;
+  }
+}

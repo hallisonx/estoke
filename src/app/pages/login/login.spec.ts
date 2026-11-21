@@ -6,6 +6,7 @@ import {
 import { provideHttpClient } from '@angular/common/http';
 import { Router, provideRouter } from '@angular/router';
 import { afterEach, vi } from 'vitest';
+import { AuthService } from '../../services/auth.service';
 import { Login } from './login';
 
 describe('Login', () => {
@@ -14,6 +15,7 @@ describe('Login', () => {
   let httpTesting: HttpTestingController;
 
   beforeEach(async () => {
+    sessionStorage.clear();
     await TestBed.configureTestingModule({
       imports: [Login],
       providers: [
@@ -31,6 +33,7 @@ describe('Login', () => {
 
   afterEach(() => {
     httpTesting.verify();
+    sessionStorage.clear();
   });
 
   it('should create', () => {
@@ -52,15 +55,41 @@ describe('Login', () => {
       senha: '123456',
     });
     request.flush({
-      sucesso: true,
-      mensagem: 'Login realizado com sucesso',
+      accessToken: 'jwt-example',
+      tokenType: 'Bearer',
+      expiresIn: 3600,
     });
     await login;
 
     expect(navigateByUrl).toHaveBeenCalledWith('/home.html');
+    expect(TestBed.inject(AuthService).isAuthenticated()).toBe(true);
+    expect(TestBed.inject(AuthService).authorizationHeader()).toBe(
+      'Bearer jwt-example',
+    );
   });
 
-  it('shows an error when the API rejects the credentials', async () => {
+  it('does not authenticate when the response has no JWT', async () => {
+    const navigateByUrl = vi
+      .spyOn(TestBed.inject(Router), 'navigateByUrl')
+      .mockResolvedValue(true);
+    const login = component.login();
+
+    httpTesting
+      .expectOne('http://localhost:8080/auth/login')
+      .flush({
+        sucesso: true,
+        mensagem: 'Login realizado com sucesso',
+      });
+    await login;
+
+    expect(navigateByUrl).not.toHaveBeenCalled();
+    expect(component.mensagemErro()).toBe(
+      'Resposta inválida do serviço de autenticação.',
+    );
+    expect(TestBed.inject(AuthService).isAuthenticated()).toBe(false);
+  });
+
+  it('shows the backend message when HTTP 401 rejects the credentials', async () => {
     const navigateByUrl = vi
       .spyOn(TestBed.inject(Router), 'navigateByUrl')
       .mockResolvedValue(true);
@@ -70,14 +99,15 @@ describe('Login', () => {
     const login = component.login();
     httpTesting
       .expectOne('http://localhost:8080/auth/login')
-      .flush({
-        sucesso: false,
-        mensagem: 'Usuário ou senha inválidos',
-      });
+      .flush(
+        { mensagem: 'Usuário ou senha inválidos' },
+        { status: 401, statusText: 'Unauthorized' },
+      );
     await login;
 
     expect(navigateByUrl).not.toHaveBeenCalled();
     expect(component.mensagemErro()).toBe('Usuário ou senha inválidos');
+    expect(TestBed.inject(AuthService).isAuthenticated()).toBe(false);
   });
 
   it('shows invalid credentials and resets the button after HTTP 401', async () => {
@@ -90,10 +120,7 @@ describe('Login', () => {
     httpTesting
       .expectOne('http://localhost:8080/auth/login')
       .flush(
-        {
-          sucesso: false,
-          mensagem: 'Usuário ou senha inválidos',
-        },
+        { mensagem: 'Usuário ou senha inválidos' },
         {
           status: 401,
           statusText: 'Unauthorized',
